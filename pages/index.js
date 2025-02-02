@@ -19,6 +19,7 @@ export default function Home() {
   }
 
   async function generateQrCode(){
+    setTransferClicked(true)
     if (files.length == 0){
       alert("Please upload at least one image.")
       return;
@@ -58,7 +59,7 @@ export default function Home() {
         {
           fileUrls.length > 0 
           ?
-          <button type="button" onClick={() => setTransferClicked(true)} className="bg-gray-800 text-gray-50 px-8 py-3 rounded-full font-Cairo font-bold text-4xl mt-24">
+          <button type="button" onClick={generateQrCode} className="bg-gray-800 text-gray-50 px-8 py-3 rounded-full font-Cairo font-bold text-4xl mt-24">
             Transfer
           </button>
           :
