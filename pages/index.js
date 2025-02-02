@@ -25,7 +25,7 @@ export default function Home() {
     }
 
     const sessionId = Math.random().toString(36).substring(2, 15)
-    const fileTransferUrl = `http://localhost:3000/transfer?session=${sessionId}`
+    const fileTransferUrl = `https://transfer-app-teal.vercel.app/transfer?session=${sessionId}`
 
     setQrValue(fileTransferUrl)
   }
