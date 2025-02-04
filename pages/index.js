@@ -9,26 +9,57 @@ export default function Home() {
   const [ fileUrls, setFileUrls ] = useState([])
   const [ transferClicked, setTransferClicked ] = useState(false)
   const [ qrValue, setQrValue ] = useState('')
+  const [ isLoading, setIsLoading ] = useState(false)
 
+
+  // this is what happens when the user uploads images
   function handleFileChange(e){
-    const selectedFiles = Array.from(e.target.files)
-    setFiles(selectedFiles)
+    const images = Array.from(e.target.files) // an array of images selected by the user
+    const urls = images.map(img => URL.createObjectURL(img))
+    setFileUrls(urls) // store file urls in state for preview
+    setFiles(images) // store images in state for later download
+  }
 
-    const urls = selectedFiles.map(file => URL.createObjectURL(file))
-    setFileUrls(urls)
+  async function createSession(){
+
+    const formData = new FormData()
+    files.forEach(
+      file => formData.append('files', file)
+    )
+
+    const response = await fetch('http://localhost:8080/upload', {
+      method: 'POST',
+      body: formData
+    })
+
+    try {
+      const data = await response.json()
+      console.log(data)
+      return data.sessionId
+    } catch (e) {
+      console.error("No session id was found")
+      console.error("Error: ", e)
+    }
+
   }
 
   async function generateQrCode(){
-    setTransferClicked(true)
+    setIsLoading(true)
+    const sessionId = await createSession()
+    
     if (files.length == 0){
       alert("Please upload at least one image.")
       return;
     }
 
-    const sessionId = Math.random().toString(36).substring(2, 15)
-    const fileTransferUrl = `https://transfer-app-teal.vercel.app/transfer?session=${sessionId}`
+    setTimeout(() => {
+      const fileTransferUrl = `http://192.168.56.1:8080/transfer?session=${sessionId}`
+      setQrValue(fileTransferUrl)
+      setTransferClicked(true)
+    }, 2000)
 
-    setQrValue(fileTransferUrl)
+    setIsLoading(false)
+
   }
 
   return (
@@ -67,7 +98,7 @@ export default function Home() {
             Upload
           </button>
         }
-        { transferClicked &&
+        { !isLoading && qrValue.length > 0 &&
           <>
             <p className="font-Cairo mb-14 text-gray-600 font-bold text-3xl">Scan the QR Code below to start the transfer: </p>
             <QRCodeCanvas value={qrValue} size={200} /> 
