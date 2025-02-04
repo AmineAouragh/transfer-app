@@ -2,7 +2,6 @@ const express = require('express')
 const cors = require('cors')
 const multer = require('multer')
 const path = require('path')
-const fs = require('fs')
 
 const app = express()
 
@@ -11,12 +10,18 @@ app.use(cors())
 
 const PORT = 8080
 
+// configure multer (store files in memory)
+const storage = multer.memoryStorage()
+const upload = multer({ storage: storage })
+
 // Store images in memory 
 const sessions = {}
 
 // upload endpoint (PC uploads images)
 app.post('/upload', upload.array('files'), (req, res) => {
+
     const sessionId = Date.now().toString() 
+
     const uploadedFiles = req.files.map(file => ({
         filename: file.originalname,
         data: file.buffer 
