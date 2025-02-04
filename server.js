@@ -11,21 +11,6 @@ app.use(cors())
 
 const PORT = 8080
 
-const upload = multer({ 
-    storage: multer.diskStorage({
-        destination: function (req, file, cb) {
-            const uploadDir = path.join(__dirname, 'uploads')
-            if (!fs.existsSync(uploadDir)){
-                fs.mkdirSync(uploadDir)
-            }
-            cb(null, uploadDir)
-        },
-        filename: function (req, file, cb) {
-            cb(null, Date.now() + path.extname(file.originalname))
-        }
-    })
-}) // Store files in memory
-
 // Store images in memory 
 const sessions = {}
 
@@ -33,8 +18,8 @@ const sessions = {}
 app.post('/upload', upload.array('files'), (req, res) => {
     const sessionId = Date.now().toString() 
     const uploadedFiles = req.files.map(file => ({
-        originalname: file.originalname,
-        path: file.path 
+        filename: file.originalname,
+        data: file.buffer 
     })) 
 
     sessions[sessionId] = uploadedFiles
@@ -48,21 +33,19 @@ app.post('/upload', upload.array('files'), (req, res) => {
 
 // Download endpoint (Phone fetches images)
 app.get('/transfer/:sessionId', (req, res) => {
+
     const sessionId = req.params.sessionId
+
     if (!sessions[sessionId]){
         return res.status(404).json({ error: 'Session not found' })
     }
 
-    const images = sessions[sessionId]
+    const image = sessions[sessionId][0]
 
-    const imagePath = images[0].path 
+    res.setHeader('Content-Disposition', `attachment; filename="${image.filename}"`)
+    res.setHeader('Content-Type', 'image/png'); // Change based on file type
     
-    res.sendFile(imagePath, (err) => {
-        if (err){
-            console.error('File not found: ', err)
-            res.status(500).json({ error: 'Internal server error.' })
-        }
-    })
+    res.send(image.data)
     
 })
 
