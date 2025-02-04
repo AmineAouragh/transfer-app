@@ -27,7 +27,7 @@ export default function Home() {
       file => formData.append('files', file)
     )
 
-    const response = await fetch('http://localhost:8080/upload', {
+    const response = await fetch('https://transfer-app-v6cl.onrender.com/upload', {
       method: 'POST',
       body: formData
     })
@@ -53,7 +53,7 @@ export default function Home() {
     }
 
     setTimeout(() => {
-      const fileTransferUrl = `http://192.168.56.1:8080/transfer?session=${sessionId}`
+      const fileTransferUrl = `https://transfer-app-v6cl.onrender.com/transfer?session=${sessionId}`
       setQrValue(fileTransferUrl)
       setTransferClicked(true)
     }, 2000)
