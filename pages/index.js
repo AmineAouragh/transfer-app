@@ -29,7 +29,10 @@ export default function Home() {
 
     const response = await fetch('https://transfer-app-v6cl.onrender.com/upload', {
       method: 'POST',
-      body: formData
+      body: formData,
+      headers: {
+        'Accept': 'application/json'
+      }
     })
 
     try {
@@ -44,7 +47,6 @@ export default function Home() {
   }
 
   async function generateQrCode(){
-    setIsLoading(true)
     const sessionId = await createSession()
     
     if (files.length == 0){
@@ -53,12 +55,11 @@ export default function Home() {
     }
 
     setTimeout(() => {
-      const fileTransferUrl = `https://transfer-app-v6cl.onrender.com/transfer?session=${sessionId}`
+      const fileTransferUrl = `https://transfer-app-v6cl.onrender.com/transfer/${sessionId}`
       setQrValue(fileTransferUrl)
       setTransferClicked(true)
     }, 2000)
 
-    setIsLoading(false)
 
   }
 
@@ -98,7 +99,7 @@ export default function Home() {
             Upload
           </button>
         }
-        { !isLoading && qrValue.length > 0 &&
+        { qrValue.length > 0 &&
           <>
             <p className="font-Cairo mb-14 text-gray-600 font-bold text-3xl">Scan the QR Code below to start the transfer: </p>
             <QRCodeCanvas value={qrValue} size={200} /> 
